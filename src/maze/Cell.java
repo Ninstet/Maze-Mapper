@@ -9,10 +9,12 @@ public class Cell {
 		this.y = y;
 	}
 	
-	public void printCell() {
-		System.out.println(" " + (walls[0] ? 1 : 0) + " ");
-		System.out.println((walls[3] ? 1 : 0) + " " + (walls[1] ? 1 : 0));
-		System.out.println(" " + (walls[2] ? 1 : 0) + " ");
+	public int getX() {
+		return x;
+	}
+	
+	public int getY() {
+		return y;
 	}
 	
 	public void setWall(int i, boolean state) {
@@ -23,7 +25,7 @@ public class Cell {
 		return walls;
 	}
 	
-	public boolean isWall(int i) {
+	public boolean hasWall(int i) {
 		return walls[i];
 	}
 	
@@ -31,8 +33,10 @@ public class Cell {
 		return walls[0] && walls[1] && walls[2] && walls[3];
 	}
 	
-	public int[] getCoords() {
-		return new int[] {x, y};
+	public void printCell() {
+		System.out.println(" " + (walls[0] ? 1 : 0) + " ");
+		System.out.println((walls[3] ? 1 : 0) + " " + (walls[1] ? 1 : 0));
+		System.out.println(" " + (walls[2] ? 1 : 0) + " ");
 	}
 	
 }
