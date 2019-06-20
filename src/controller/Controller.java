@@ -30,5 +30,13 @@ public class Controller {
 	public static boolean check(int direction) {
 		return false;
 	}
+	
+	public void rotateTo(int absoluteDirection) {
+		
+	}
+	
+	public void forward() {
+		
+	}
 
 }

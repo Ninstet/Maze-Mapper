@@ -1,5 +1,7 @@
 package maze;
 
+import java.util.ArrayList;
+
 public class Vector {
 	private int x1, y1;
 	private int x2, y2;
@@ -98,13 +100,13 @@ public class Vector {
 	
 	public boolean isPossible(Cell[][] cells) {
 		if (y1 > y2) {
-			return !cells[x1][y1].getWalls()[0];
+			return !cells[x1][y1].getWalls()[0] && !cells[x2][y2].getWalls()[2];
 		} else if (x1 < x2) {
-			return !cells[x1][y1].getWalls()[1];
+			return !cells[x1][y1].getWalls()[1] && !cells[x2][y2].getWalls()[3];
 		} else if (y1 < y2) {
-			return !cells[x1][y1].getWalls()[2];
+			return !cells[x1][y1].getWalls()[2] && !cells[x2][y2].getWalls()[0];
 		} else if (x1 > x2) {
-			return !cells[x1][y1].getWalls()[3];
+			return !cells[x1][y1].getWalls()[3] && !cells[x2][y2].getWalls()[1];
 		} else {
 			return false;
 		}
