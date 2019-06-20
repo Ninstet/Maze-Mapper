@@ -1,13 +1,18 @@
 package maze;
 
 public class Main {
-	public static Gui g;
+	private static Maze maze;
+	private static Gui g;
 	
 	public static void main(String[] args) {
-		Maze maze = new Maze(100, 100);
+		maze = new Maze(10, 10);
 		g = new Gui(maze);
 		maze.randomize();
-		maze.shortestPath(maze.getCells()[Maze.rand(0, 99)][Maze.rand(0, 99)], maze.getCells()[Maze.rand(0, 99)][Maze.rand(0, 99)]);
+		g.refresh();
+	}
+	
+	public static void pathFromOriginTo(int x, int y) {
+		maze.shortestPath(maze.getCells()[0][0], maze.getCells()[Math.round(x / (g.getHeight() / maze.getHeight()))][Math.round(y / (g.getHeight() / maze.getHeight()))]);
 		g.refresh();
 	}
 	

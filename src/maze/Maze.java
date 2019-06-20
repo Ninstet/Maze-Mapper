@@ -96,6 +96,7 @@ public class Maze {
 	// ---- PRIVATE METHODS ----
 	
 	public void shortestPath(Cell cellStart, Cell cellEnd) {
+		setAllColors(Color.WHITE);
 		
 		ArrayList<Vector> heritage = new ArrayList<Vector>();
 		Vector tempVector;
@@ -175,6 +176,14 @@ public class Maze {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				cells[i][j] = new Cell(i, j);
+			}
+		}
+	}
+	
+	private void setAllColors(Color color) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				cells[i][j].setColor(color);
 			}
 		}
 	}

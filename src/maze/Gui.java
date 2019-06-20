@@ -15,6 +15,8 @@ public class Gui extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setTitle("Maze");
 		
+		this.getContentPane().addMouseMotionListener(new EventListener());
+		
 		MazePanel panel = new MazePanel(maze);
 		this.add(panel);
 		
