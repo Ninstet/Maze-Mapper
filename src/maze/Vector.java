@@ -3,10 +3,12 @@ package maze;
 public class Vector {
 	private int x1, y1;
 	private int x2, y2;
+	private int direction;
 	
 	public Vector(int x1, int y1, int direction) {
 		this.x1 = x1;
 		this.y1 = y1;
+		this.direction = direction;
 		
 		if (direction == 0) {
 			this.x2 = x1;
@@ -21,6 +23,27 @@ public class Vector {
 			this.x2 = x1 - 1;
 			this.y2 = y1;
 		}
+	}
+	
+	public Vector(int x1, int y1, int x2, int y2) {
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+		
+		if (y1 > y2) {
+			direction = 0;
+		} else if (x1 < x2) {
+			direction = 1;
+		} else if (y1 < y2) {
+			direction = 2;
+		} else if (x1 > x2) {
+			direction = 3;
+		}
+	}
+	
+	public Cell get(Cell[][] cells) {
+		return cells[x1][y1];
 	}
 	
 	public int getX() {
@@ -45,6 +68,10 @@ public class Vector {
 	
 	public void printVector() {
 		System.out.println("(" + getX() + ", " + getY() + ") --> (" + getTargetX() + ", " + getTargetY() + ")");
+	}
+	
+	public int getDirection() {
+		return direction;
 	}
 	
 	public Cell[][] breakWalls(Cell[][] cells) {

@@ -24,6 +24,10 @@ public class Cell {
 		return y;
 	}
 	
+	public String getCoords() {
+		return "(" + x + ", " + y + ")";
+	}
+	
 	
 	// Walls
 	

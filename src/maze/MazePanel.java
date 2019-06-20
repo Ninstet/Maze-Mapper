@@ -37,7 +37,7 @@ public class MazePanel extends JPanel {
 				if (cell.checkWalls()) g.fillRect(topLeft[0], topLeft[1], cell_size, cell_size);
 				
 				if (cell.willDisplayValues()) {
-					g.drawString("(" + cell.getX() + ", " + cell.getY() + ")", topLeft[0] + (cell_size / 2) - (cell_size / 5), topLeft[1] + 15);
+					g.drawString(cell.getCoords(), topLeft[0] + (cell_size / 2) - (cell_size / 5), topLeft[1] + 15);
 					if (cell.getF() != 0) g.drawString(cell.getG() + "  " + cell.getF() + "  " + cell.getH(), topLeft[0] + (cell_size / 2) - 25, topLeft[1] + (cell_size / 2));
 				}
 				

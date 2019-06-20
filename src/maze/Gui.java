@@ -1,5 +1,8 @@
 package maze;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JFrame;
 
 public class Gui extends JFrame {
@@ -15,7 +18,12 @@ public class Gui extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setTitle("Maze");
 		
-		this.getContentPane().addMouseMotionListener(new EventListener());
+		this.getContentPane().addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				//Main.pathFromOriginTo(e.getX(), e.getY());
+			}
+		});
 		
 		MazePanel panel = new MazePanel(maze);
 		this.add(panel);
@@ -26,5 +34,5 @@ public class Gui extends JFrame {
 	public void refresh() {
 		this.repaint();
 	}
-
+	
 }
