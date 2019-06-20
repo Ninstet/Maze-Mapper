@@ -13,15 +13,15 @@ public class Gui extends JFrame {
 		super();
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(WIDTH, HEIGHT);
+		this.setSize(WIDTH, HEIGHT + 24);
 		this.setResizable(true);
 		this.setLocationRelativeTo(null);
 		this.setTitle("Maze");
 		
-		this.getContentPane().addMouseMotionListener(new MouseAdapter() {
+		this.getContentPane().addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				//Main.pathFromOriginTo(e.getX(), e.getY());
+			public void mousePressed(MouseEvent e) {
+				//
 			}
 		});
 		

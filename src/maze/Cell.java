@@ -8,8 +8,9 @@ public class Cell {
 	
 	private int x, y;
 	private int g = 0, h = 0, f = 0;
+	private int direction = -1;
 	
-	Color color = Color.WHITE;
+	private Color color = Color.WHITE;
 	
 	public Cell(int x, int y) {
 		this.x = x;
@@ -26,6 +27,14 @@ public class Cell {
 	
 	public String getCoords() {
 		return "(" + x + ", " + y + ")";
+	}
+	
+	public void setDirection(int d) {
+		direction = d;
+	}
+	
+	public int getDirection() {
+		return direction;
 	}
 	
 	

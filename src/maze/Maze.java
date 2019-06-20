@@ -48,14 +48,18 @@ public class Maze {
 		}
 	}
 	
-	public void displayCellValues(Gui g) {
+	public void displayCellValues() {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				cells[i][j].displayValues(true);
 			}
 		}
 		
-		g.refresh();
+		Main.g.refresh();
+	}
+	
+	public void displayVectors(ArrayList<Vector> path) {
+		for (int i = 0; i < path.size(); i++) path.get(i).get(cells).setDirection(path.get(i).getDirection());
 	}
 	
 	
@@ -99,11 +103,12 @@ public class Maze {
 	
 	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
 		
+		cellEnd.setColor(Color.RED);
+		
 		Maze simulatedMaze = null;
 		if (simulate) {
-			simulatedMaze = new Maze(10, 10);
+			simulatedMaze = new Maze(getWidth(), getHeight());
 			simulatedMaze.randomize();
-//			ArrayList<Vector> path = simulatedMaze.shortestPath(simulatedMaze.getCells()[0][0], simulatedMaze.getCells()[1][1]);
 //			for (int i = 0; i < path.size(); i++) System.out.println("(" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
 //			Gui g = new Gui(simulatedMaze);
 		}
@@ -118,8 +123,6 @@ public class Maze {
 		Memory.orientation = 0;
 		
 		while (Memory.location != cellEnd) {
-			
-			for (int i = 0; i < open.size(); i++) open.get(i).setColor(Color.GREEN);
 			
 			target = open.pop();
 			
@@ -157,7 +160,7 @@ public class Maze {
 							tempVector.breakWalls(getCells());
 							if (!open.contains(neighbour) && !closed.contains(neighbour)) {
 								open.push(neighbour);
-								neighbour.setColor(Color.GREEN);
+								neighbour.setColor(Color.BLUE);
 							}
 						}
 					} else {
@@ -168,7 +171,7 @@ public class Maze {
 							tempVector.breakWalls(getCells());
 							if (!open.contains(neighbour) && !closed.contains(neighbour)) {
 								open.push(neighbour);
-								neighbour.setColor(Color.GREEN);
+								neighbour.setColor(Color.BLUE);
 							}
 						}
 						
@@ -179,6 +182,9 @@ public class Maze {
 			}
 			
 		}
+		
+		colorPath(shortestPath(cellStart, cellEnd));
+		Main.g.refresh();
 		
 	}
 	
@@ -237,6 +243,10 @@ public class Maze {
 		
 		return path;
 		
+	}
+	
+	public void colorPath(ArrayList<Vector> path) {
+		for (int i = 0; i < path.size(); i++) path.get(i).get(getCells()).setColor(Color.CYAN);
 	}
 	
 	
