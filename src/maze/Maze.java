@@ -1,5 +1,6 @@
 package maze;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -17,7 +18,7 @@ public class Maze {
 	}
 	
 	
-	// ---- PUBLIC METHODS ----
+	// ---- GETTER METHODS ----
 	
 	public int getWidth() {
 		return width;
@@ -41,7 +42,20 @@ public class Maze {
 		}
 	}
 	
-	public void randomise() {
+	public void displayCellValues(Gui g) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				cells[i][j].displayValues(true);
+			}
+		}
+		
+		g.refresh();
+	}
+	
+	
+	// ---- SIMULATION METHODS ----
+	
+	public void randomize() {
 		
 		int visitedCells = 1;
 		int totalCells = width * height;
@@ -56,37 +70,11 @@ public class Maze {
 			
 			neighbourVectors.clear();
 			
-			int x = current.getX();
-			int y = current.getY();
-			
-			// North neighbour
-			tempVector = new Vector(x, y);
-			if (y - 1 >= 0 && cells[x][y - 1].checkWalls()) {
-				tempVector.setTarget(x, y - 1);
-				neighbourVectors.add(tempVector);
+			for (int i = 0; i < 4; i++) {
+				tempVector = new Vector(current.getX(), current.getY(), i);
+				if (tempVector.isOnMap(this) && tempVector.getTarget(cells).checkWalls()) neighbourVectors.add(tempVector);
 			}
-			
-			// East neighbour
-			tempVector = new Vector(x, y);
-			if (x + 1 < width && cells[x + 1][y].checkWalls()) {
-				tempVector.setTarget(x + 1, y);
-				neighbourVectors.add(tempVector);
-			}
-			
-			// South neighbour
-			tempVector = new Vector(x, y);
-			if (y + 1 < height && cells[x][y + 1].checkWalls()) {
-				tempVector.setTarget(x, y + 1);
-				neighbourVectors.add(tempVector);
-			}
-			
-			// West neighbour
-			tempVector = new Vector(x, y);
-			if (x - 1 >= 0 && cells[x - 1][y].checkWalls()) {
-				tempVector.setTarget(x - 1, y);
-				neighbourVectors.add(tempVector);
-			}
-			
+
 			// MAIN
 			if (neighbourVectors.size() > 0) {
 				
@@ -107,8 +95,80 @@ public class Maze {
 	
 	// ---- PRIVATE METHODS ----
 	
-	private int rand(int a, int b) {
-		return (int)(Math.random() * (b + 1) + a);
+	public void shortestPath(Cell cellStart, Cell cellEnd) {
+		
+		ArrayList<Vector> heritage = new ArrayList<Vector>();
+		Vector tempVector;
+		
+		ArrayList<Cell> open = new ArrayList<Cell>();
+		ArrayList<Cell> closed = new ArrayList<Cell>();
+		
+		Cell current = cellStart;
+		open.add(current);
+		
+		while (current != cellEnd) {
+			
+			current = getSmallestFCell(open, cellStart, cellEnd);
+			
+			open.remove(current);
+			closed.add(current);
+			
+			if (current != cellEnd) {
+				
+				for (int i = 0; i < 4; i++) {
+					tempVector = new Vector(current.getX(), current.getY(), i);
+					
+					if (tempVector.isOnMap(this)) {
+						Cell neighbour = tempVector.getTarget(cells);
+						
+						if (tempVector.isPossible(cells) && !closed.contains(neighbour)) {
+							if (neighbour.getNewG(current) < neighbour.getG() || !open.contains(neighbour)) {
+								neighbour.update(current, cellEnd);
+								heritage.add(tempVector);
+								
+								if (!open.contains(neighbour)) open.add(neighbour);
+							}
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		
+		ArrayList<Cell> path = getPath(cellStart, cellEnd, heritage);
+		
+		for (int i = 0; i < closed.size(); i++) closed.get(i).setColor(Color.RED);
+		for (int i = 0; i < open.size(); i++) open.get(i).setColor(Color.GREEN);
+		for (int i = 0; i < path.size(); i++) path.get(i).setColor(Color.CYAN);
+		
+		cellStart.setColor(Color.BLUE);
+		cellEnd.setColor(Color.BLUE);
+		
+	}
+	
+	private ArrayList<Cell> getPath(Cell cellStart, Cell cellEnd, ArrayList<Vector> heritage) {
+		Vector tempVector;
+		
+		ArrayList<Cell> path = new ArrayList<Cell>();
+		
+		if (heritage.size() > 0) {
+			int lastX = heritage.get(heritage.size() - 1).getX();
+			int lastY = heritage.get(heritage.size() - 1).getY();
+			for (int i = heritage.size() - 1; i >= 0; i--) {
+				tempVector = heritage.get(i);
+				if (tempVector.getTargetX() == lastX && tempVector.getTargetY() == lastY) {
+					path.add(tempVector.getTarget(cells));
+					lastX = tempVector.getX();
+					lastY = tempVector.getY();
+				}
+			}
+		}
+		
+		return path;
 	}
 	
 	private void initiateCells() {
@@ -117,6 +177,24 @@ public class Maze {
 				cells[i][j] = new Cell(i, j);
 			}
 		}
+	}
+	
+	private static Cell getSmallestFCell(ArrayList<Cell> array, Cell cellStart, Cell cellEnd) {
+		int index = 0;
+		int min = array.get(index).getF();
+		
+		for (int i = 1; i < array.size(); i++) {
+			if (array.get(i).getF() < min) {
+				min = array.get(i).getF();
+				index = i;
+			}
+		}
+		
+		return array.get(index);
+	}
+	
+	public static int rand(int a, int b) {
+		return (int)(Math.random() * (b + 1) + a);
 	}
 	
 }
