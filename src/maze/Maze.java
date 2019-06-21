@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-import main.Controller;
 import main.Main;
 import main.Memory;
 import sensors.Result;
@@ -26,31 +25,39 @@ public class Maze {
 		initiateCells();
 	}
 	
+	
+	
+	
 	// ------------------------
 	// ---- GETTER METHODS ----
 	// ------------------------
 	
 	
 	
-	// Get the width of the maze in units of cells.
-	
-	
+	/**
+	 * Get the width of the maze in units of cells.
+	 * @return Width of the maze.
+	 */
 	public int getWidth() {
 		return width;
 	}
 	
 	
 	
-	// Get the height of the maze in units of cells.
-	
+	/**
+	 * Get the height of the maze in units of cells.
+	 * @return Height of the maze.
+	 */
 	public int getHeight() {
 		return height;
 	}
 	
 	
 	
-	// Get a list of list of cells in the maze. In the first element of the first list is a list of cells in the first row.
-	
+	/**
+	 * Get a list of list of cells in the maze. In the first element of the first list is a list of cells in the first row.
+	 * @return Array of array of cells representing the maze.
+	 */
 	public Cell[][] getCells() {
 		return cells;
 	}
@@ -67,8 +74,9 @@ public class Maze {
 	
 	
 	
-	// Randomize the maze such that a path exists between any two cells.
-	
+	/**
+	 * Randomize the maze such that a path exists between any two cells.
+	 */
 	public void randomize() {
 		
 		int visitedCells = 1;
@@ -123,6 +131,10 @@ public class Maze {
 	
 	
 	
+	/**
+	 * Randomly set cells in a maze to green, meaning you cannot traverse over them.
+	 * @param probability - Probability of a cell being made green.
+	 */
 	public void addGreenCells(double probability) {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -135,9 +147,9 @@ public class Maze {
 	
 	/**
 	 * Begin exploring the maze using depth first search. When required to traverse to cell in stack, use A*.
-	 * @param cellStart - The starting cell to explore from
-	 * @param cellEnd - The goal cell you wish to optimise a shortest path to
-	 * @param simulate - True to simulate sensor inputs and maze, false to use robot sensors in real maze
+	 * @param cellStart - The starting cell to explore from.
+	 * @param cellEnd - The goal cell you wish to optimise a shortest path to.
+	 * @param simulate - True to simulate sensor inputs and maze, false to use robot sensors in real maze.
 	 */
 	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
 		
@@ -146,7 +158,7 @@ public class Maze {
 			simulatedMaze = new Maze(getWidth(), getHeight());
 			Main.g.addMaze("Solution", simulatedMaze);
 			simulatedMaze.randomize();
-			simulatedMaze.randomBreak(0.4);
+			simulatedMaze.randomBreak(0.5);
 			simulatedMaze.addGreenCells(0.02);
 			ArrayList<Vector> path = simulatedMaze.shortestPath(cellStart, cellEnd);
 			simulatedMaze.displayVectors(path);
@@ -166,7 +178,7 @@ public class Maze {
 		while (!isSmallestPossiblePath(cellStart, cellEnd, closed)) {
 			
 			Cell target = open.pop();
-			traverse(Memory.location, target, cellEnd);
+			traverse(target, cellEnd);
 			closed.add(Memory.location);
 				
 			for (int i = 3; i <= 5; i++) {
@@ -187,16 +199,7 @@ public class Maze {
 						tempVector.breakWalls(cells);
 					}
 				} else {
-					if (Controller.check(absoluteOrientation)) {
-						Cell neighbour = tempVector.getTarget(cells);
-						
-						tempVector.breakWalls(getCells());
-						if (!open.contains(neighbour) && !closed.contains(neighbour)) {
-							open.push(neighbour);
-							neighbour.setColor(Color.BLUE);
-						}
-					}
-					
+					// Non-simulated method
 				}
 				
 			}
@@ -210,8 +213,12 @@ public class Maze {
 	
 	
 	
-	// Get a path (list of vectors) between two cells in the maze. Uses A*.
-	
+	/**
+	 * Get a path (list of vectors) between two cells in the maze. Uses A*.
+	 * @param cellStart - Cell to start the path from.
+	 * @param cellEnd - Cell to end the path at.
+	 * @return The shortest path between the cells.
+	 */
 	public ArrayList<Vector> shortestPath(Cell cellStart, Cell cellEnd) {
 		ArrayList<Vector> heritage = new ArrayList<Vector>();
 		
@@ -286,8 +293,9 @@ public class Maze {
 	
 	
 	
-	// Print all the cells in the maze to the console.
-	
+	/**
+	 * Print all the cells in the maze to the console.
+	 */
 	public void printCells() {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -300,8 +308,9 @@ public class Maze {
 	
 	
 	
-	// Set all the cells in the maze to display their cell values on GUI refresh.
-	
+	/**
+	 * Set all the cells in the maze to display their cell values on GUI refresh.
+	 */
 	public void displayCellValues() {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -313,8 +322,10 @@ public class Maze {
 	
 	
 	
-	// Set all the cells in a path (list of vectors) to display their directions on GUI refresh.
-	
+	/**
+	 * Set all the cells in a path (list of vectors) to display their directions on GUI refresh.
+	 * @param path - Path (list of vectors) to display the vectors over.
+	 */
 	public void displayVectors(ArrayList<Vector> path) {
 		for (int i = 0; i < path.size(); i++) path.get(i).get(cells).setDirection(path.get(i).getDirection());
 		Main.g.refresh();
@@ -332,8 +343,9 @@ public class Maze {
 	
 	
 	
-	// Create a blank 'Cell' object for each cell in the maze.
-	
+	/**
+	 * Create a blank 'Cell' object for each cell in the maze.
+	 */
 	private void initiateCells() {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -344,8 +356,13 @@ public class Maze {
 	
 	
 	
-	// Determine the path followed from a 'heritage tree' that is a list of parent and child cells.
-	
+	/**
+	 * Determine the path followed from a 'heritage tree' that is a list of parent and child cells.
+	 * @param cellStart - Cell the path starts from.
+	 * @param cellEnd - Cell the path ends at.
+	 * @param heritage - Heritage tree (list of vectors) determined by the A* algorithm.
+	 * @return The path as a list of vectors.
+	 */
 	private ArrayList<Vector> getPath(Cell cellStart, Cell cellEnd, ArrayList<Vector> heritage) {
 		ArrayList<Vector> path = new ArrayList<Vector>();
 		
@@ -370,6 +387,13 @@ public class Maze {
 	
 	
 	
+	/**
+	 * Determine if a path between 2 cells is the shortest possible path in a maze not fully explored. This is done by assuming all unexplored cells are empty and hence traversable.
+	 * @param cellStart - Cell the path starts from.
+	 * @param cellEnd - Cell the path ends at.
+	 * @param closed - List of unexplored cells to assume are empty.
+	 * @return True if the path between 2 cells is the shortest. False if there could be a shorter path, and hence more data is required to be sure.
+	 */
 	private boolean isSmallestPossiblePath(Cell cellStart, Cell cellEnd, ArrayList<Cell> closed) {
 		Maze tempMaze = new Maze(this.width, this.height);
 		for (int i = 0; i < width; i++) {
@@ -391,8 +415,13 @@ public class Maze {
 	
 	
 	
-	// Get the smallest F valued cell from a list of cells. Gives an index out of bounds error if path not possible.
-	
+	/**
+	 * Get the smallest F valued cell from a list of cells. Gives an index out of bounds error if path not possible.
+	 * @param list - List of cells to find the smallest F value in.
+	 * @param cellStart - Cell the A* search would start from.
+	 * @param cellEnd - Cell the A* search would end at.
+	 * @return The cell with the smallest F value.
+	 */
 	private static Cell getSmallestFCell(ArrayList<Cell> list, Cell cellStart, Cell cellEnd) {
 		int index = 0;
 		int min = list.get(index).getF();
@@ -409,8 +438,10 @@ public class Maze {
 	
 	
 	
-	// Set the color of all the cells in the maze.
-	
+	/**
+	 * Set the color of all the cells in the maze.
+	 * @param color - The color you wish to set all cells to.
+	 */
 	private void setAllColors(Color color) {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -421,8 +452,11 @@ public class Maze {
 	
 	
 	
-	// Set the color of all the cells in the path.
-	
+	/**
+	 * Set the color of all the cells in the path.
+	 * @param path - The path (list of vectors) you wish to set the color of cells for.
+	 * @param color - The color you wish to set the cells to.
+	 */
 	private void colorPath(ArrayList<Vector> path, Color color) {
 		for (int i = 0; i < path.size(); i++) path.get(i).get(getCells()).setColor(color);
 		path.get(path.size() - 1).getTarget(cells).setColor(color);
@@ -430,8 +464,11 @@ public class Maze {
 	
 	
 	
-	// Get a list of the coordinates followed by a path (a list of vectors).
-	
+	/**
+	 * Get a list of the coordinates followed by a path (a list of vectors).
+	 * @param path - The path (list of vectors) over which you wish to find the coordinates of the cells for.
+	 * @return A list of coordinates representing the path followed.
+	 */
 	private ArrayList<String> getPathCoords(ArrayList<Vector> path) {
 		ArrayList<String> coords = new ArrayList<String>();
 		for (int i = 0; i < path.size(); i++) {
@@ -443,15 +480,18 @@ public class Maze {
 	
 	
 	
-	// Animate the motion to a target cell from the current cell in the memory class.
-	
-	private void traverse(Cell current, Cell target, Cell cellEnd) {
+	/**
+	 * Animate the motion to a target cell from the current cell in the memory class.
+	 * @param target - The cell you wish to traverse to.
+	 * @param cellEnd - The end cell in the exploration (to ensure it remains red).
+	 */
+	private void traverse(Cell target, Cell cellEnd) {
 		ArrayList<Vector> path = shortestPath(Memory.location, target);
 
-		//System.out.println("--------------------------");
-		//System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
-		//System.out.println("Path: ");
-		//for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
+		System.out.println("--------------------------");
+		System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
+		System.out.println("Path: ");
+		for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
 		
 		for (int i = 0; i < path.size(); i++) {
 			Memory.location.setColor(Color.WHITE);
@@ -460,7 +500,7 @@ public class Maze {
 			Memory.location = path.get(i).getTarget(cells);
 			Memory.orientation = path.get(i).getDirection();
 			Memory.location.setColor(Color.ORANGE);
-			sleep(150);
+			sleep(200);
 			Main.g.refresh();
 		}
 	}
@@ -478,16 +518,22 @@ public class Maze {
 	
 	
 	
-	// Return a random number from a to b (inclusive).
-	
+	/**
+	 * Return a random number from a to b (inclusive).
+	 * @param a - The lower bound for the random number.
+	 * @param b - The upper bound for the random number.
+	 * @return The random integer.
+	 */
 	public static int rand(int a, int b) {
 		return (int)(Math.random() * (b + 1) + a);
 	}
 	
 	
 	
-	// Sleep a specified time interval (with error handling).
-	
+	/**
+	 * Sleep a specified time interval (with error handling).
+	 * @param ms - The time you wish the program to idle for (in milliseconds).
+	 */
 	public static void sleep(int ms) {
 		try {
 			Thread.sleep(ms);

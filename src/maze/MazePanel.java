@@ -17,7 +17,12 @@ public class MazePanel extends JPanel {
 	}
 
 	public void paintComponent(Graphics g) {
-		int cell_size = Gui.HEIGHT / maze.getHeight();
+		int cell_size;
+		if (maze.getHeight() > maze.getWidth()) {
+			cell_size = Gui.HEIGHT / maze.getHeight();
+		} else {
+			cell_size = Gui.WIDTH / maze.getWidth();
+		}
 		
 		for (int i = 0; i < maze.getWidth(); i++) {
 			for (int j = 0; j < maze.getHeight(); j++) {

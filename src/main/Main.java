@@ -16,7 +16,7 @@ public class Main {
 		g.addMaze("Explorer", exploredMaze);
 		
 		Cell bottomLeft = exploredMaze.getCells()[0][Y_SIZE - 1];
-		Cell topRight = exploredMaze.getCells()[X_SIZE - 1][0];
+		Cell topRight = exploredMaze.getCells()[Maze.rand(0, X_SIZE - 1)][Maze.rand(0, Y_SIZE - 1)];
 		
 		exploredMaze.explore(bottomLeft, topRight, true);
 		exploredMaze.displayVectors(exploredMaze.shortestPath(bottomLeft, topRight));
