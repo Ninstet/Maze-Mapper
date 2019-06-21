@@ -1,9 +1,11 @@
 package maze;
 
 import java.awt.Color;
+import java.util.Arrays;
 
-public class Cell {
+public class Cell implements Cloneable {
 	private boolean[] walls = {true, true , true , true}; // Assume all walls are up
+	private boolean green = false;
 	private boolean displayValues;
 	
 	private int x, y;
@@ -73,6 +75,15 @@ public class Cell {
 		return color;
 	}
 	
+	public void setGreen(boolean state) {
+		green = state;
+		setColor(Color.GREEN);
+	}
+	
+	public boolean isGreen() {
+		return green;
+	}
+	
 	
 	// A*
 	
@@ -104,6 +115,23 @@ public class Cell {
 	
 	public boolean willDisplayValues() {
 		return displayValues;
+	}
+	
+	
+	// Misc
+	
+	@Override
+	public Cell clone() {
+		Cell cell = new Cell(this.x, this.y);
+		cell.walls = Arrays.copyOf(this.walls, this.walls.length);
+		cell.green = this.green;
+		cell.displayValues = this.displayValues;
+		cell.g = this.g;
+		cell.h = this.h;
+		cell.f = this.f;
+		cell.direction = this.direction;
+		cell.color = this.color;
+		return cell;
 	}
 	
 }

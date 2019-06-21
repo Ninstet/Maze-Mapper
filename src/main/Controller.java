@@ -1,4 +1,4 @@
-package controller;
+package main;
 
 import lejos.hardware.BrickFinder;
 import lejos.hardware.Keys;
@@ -9,7 +9,7 @@ import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
 import lejos.robotics.chassis.WheeledChassis;
 import lejos.robotics.navigation.MovePilot;
-import controller.Data;
+import main.Data;
 
 public class Controller {
 	

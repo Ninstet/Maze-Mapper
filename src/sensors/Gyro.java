@@ -2,8 +2,8 @@ package sensors;
 
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3GyroSensor;
-import controller.Controller;
-import controller.Data;
+import main.Controller;
+import main.Data;
 
 public class Gyro extends Sensor {
 	EV3GyroSensor GYRO_SENSOR;

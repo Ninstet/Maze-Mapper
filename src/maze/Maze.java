@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-import controller.Controller;
-import controller.Memory;
+import main.Controller;
+import main.Main;
+import main.Memory;
+import sensors.Result;
+import sensors.Simulate;
 
 public class Maze {
 	private Cell[][] cells;
@@ -103,8 +106,10 @@ public class Maze {
 	
 	
 	
-	// Randomly break walls in the maze to add additional alternate routes between cells. Probability is of a wall being broken.
-	
+	/**
+	 * Randomly break walls in the maze to add additional alternate routes between cells.
+	 * @param probability - Probability of a wall being broken.
+	 */
 	public void randomBreak(double probability) {
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -118,19 +123,34 @@ public class Maze {
 	
 	
 	
-	// Begin exploring the maze using depth first search. When required to traverse to cell in stack, use A*.
+	public void addGreenCells(double probability) {
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				if (rand(0, getHeight() * getWidth()) > (getHeight() * getWidth()) * (1 - probability)) cells[i][j].setGreen(true);
+			}
+		}
+	}
 	
+	
+	
+	/**
+	 * Begin exploring the maze using depth first search. When required to traverse to cell in stack, use A*.
+	 * @param cellStart - The starting cell to explore from
+	 * @param cellEnd - The goal cell you wish to optimise a shortest path to
+	 * @param simulate - True to simulate sensor inputs and maze, false to use robot sensors in real maze
+	 */
 	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
 		
 		Maze simulatedMaze = null;
 		if (simulate) {
 			simulatedMaze = new Maze(getWidth(), getHeight());
+			Main.g.addMaze("Solution", simulatedMaze);
 			simulatedMaze.randomize();
-			simulatedMaze.randomBreak(0);
+			simulatedMaze.randomBreak(0.4);
+			simulatedMaze.addGreenCells(0.02);
 			ArrayList<Vector> path = simulatedMaze.shortestPath(cellStart, cellEnd);
 			simulatedMaze.displayVectors(path);
 			simulatedMaze.colorPath(path, Color.CYAN);
-			new Gui(simulatedMaze);
 		}
 		
 		cellEnd.setColor(Color.RED);
@@ -143,66 +163,42 @@ public class Maze {
 		Memory.location = cellStart;
 		Memory.orientation = 0;
 		
-		while (Memory.location != cellEnd) {
+		while (!isSmallestPossiblePath(cellStart, cellEnd, closed)) {
 			
 			Cell target = open.pop();
-			traverse(Memory.location, target);
+			traverse(Memory.location, target, cellEnd);
 			closed.add(Memory.location);
-			
-			if (Memory.location != cellEnd) {
 				
-				for (int i = 3; i <= 5; i++) {
-					
-					int absoluteOrientation = (i + Memory.orientation) % 4;
-					
-					if (simulate) {
-						if (Simulate.check(simulatedMaze, Memory.location, absoluteOrientation)) {
-							tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteOrientation);
-							Cell neighbour = tempVector.getTarget(cells);
-							
-							tempVector.breakWalls(getCells());
-							if (!open.contains(neighbour) && !closed.contains(neighbour)) {
-								open.push(neighbour);
-								neighbour.setColor(Color.BLUE);
-							}
-						}
-					} else {
-						if (Controller.check(absoluteOrientation)) {
-							tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteOrientation);
-							Cell neighbour = tempVector.getTarget(cells);
-							
-							tempVector.breakWalls(getCells());
-							if (!open.contains(neighbour) && !closed.contains(neighbour)) {
-								open.push(neighbour);
-								neighbour.setColor(Color.BLUE);
-							}
-						}
+			for (int i = 3; i <= 5; i++) {
+				int absoluteOrientation = (i + Memory.orientation) % 4;
+				tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteOrientation);
+				
+				if (simulate) {
+					if (Simulate.check(simulatedMaze, Memory.location, absoluteOrientation) == Result.POSSIBLE) {
+						Cell neighbour = tempVector.getTarget(cells);
 						
+						tempVector.breakWalls(getCells());
+						if (!open.contains(neighbour) && !closed.contains(neighbour)) {
+							open.push(neighbour);
+							neighbour.setColor(Color.BLUE);
+						}
+					} else if (Simulate.check(simulatedMaze, Memory.location, absoluteOrientation) == Result.GREEN) {
+						tempVector.getTarget(cells).setColor(Color.GREEN);
+						tempVector.breakWalls(cells);
+					}
+				} else {
+					if (Controller.check(absoluteOrientation)) {
+						Cell neighbour = tempVector.getTarget(cells);
+						
+						tempVector.breakWalls(getCells());
+						if (!open.contains(neighbour) && !closed.contains(neighbour)) {
+							open.push(neighbour);
+							neighbour.setColor(Color.BLUE);
+						}
 					}
 					
 				}
 				
-			} else {
-				Maze tempMaze = new Maze(getWidth(), getHeight());
-				for (int i = 0; i < width; i++) {
-					for (int j = 0; j < height; j++) {
-						Cell cell = tempMaze.getCells()[i][j];
-						if (!closed.contains(getCells()[i][j])) {
-							cell.setWall(0, false);
-							cell.setWall(1, false);
-							cell.setWall(2, false);
-							cell.setWall(3, false);
-						} else {
-							tempMaze.getCells()[i][j] = getCells()[i][j];
-						}
-					}
-				}
-				tempMaze.colorPath(tempMaze.shortestPath(cellStart, cellEnd), Color.RED);
-				tempMaze.displayVectors(tempMaze.shortestPath(cellStart, cellEnd));
-				
-				if (getPathCoords(shortestPath(cellStart, cellEnd)).equals(tempMaze.getPathCoords(tempMaze.shortestPath(cellStart, cellEnd)))) System.out.println("Shortest path found!");
-				
-				new Gui(tempMaze);
 			}
 			
 		}
@@ -242,7 +238,7 @@ public class Maze {
 					if (tempVector.isOnMap(this)) {
 						Cell neighbour = tempVector.getTarget(cells);
 						
-						if (tempVector.isPossible(cells) && !closed.contains(neighbour)) {
+						if (tempVector.isPossible(cells) && !closed.contains(neighbour) && !neighbour.isGreen()) {
 							
 							if (neighbour.getNewG(current) < neighbour.getG() || !open.contains(neighbour)) {
 								neighbour.update(current, cellEnd);
@@ -374,6 +370,27 @@ public class Maze {
 	
 	
 	
+	private boolean isSmallestPossiblePath(Cell cellStart, Cell cellEnd, ArrayList<Cell> closed) {
+		Maze tempMaze = new Maze(this.width, this.height);
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				tempMaze.getCells()[i][j] = this.getCells()[i][j].clone();
+				if (!closed.contains(getCells()[i][j])) {
+					tempMaze.getCells()[i][j].setWall(0, false);
+					tempMaze.getCells()[i][j].setWall(1, false);
+					tempMaze.getCells()[i][j].setWall(2, false);
+					tempMaze.getCells()[i][j].setWall(3, false);
+				}
+			}
+		}
+		//this.colorPath(tempMaze.shortestPath(cellStart, cellEnd), Color.RED);
+		//this.displayVectors(tempMaze.shortestPath(cellStart, cellEnd));
+		
+		return getPathCoords(shortestPath(cellStart, cellEnd)).equals(tempMaze.getPathCoords(tempMaze.shortestPath(cellStart, cellEnd)));
+	}
+	
+	
+	
 	// Get the smallest F valued cell from a list of cells. Gives an index out of bounds error if path not possible.
 	
 	private static Cell getSmallestFCell(ArrayList<Cell> list, Cell cellStart, Cell cellEnd) {
@@ -420,7 +437,7 @@ public class Maze {
 		for (int i = 0; i < path.size(); i++) {
 			coords.add(path.get(i).get(cells).getCoords());
 		}
-		coords.add(path.get(path.size() - 1).getTarget(cells).getCoords());
+		if (path.size() > 0) coords.add(path.get(path.size() - 1).getTarget(cells).getCoords());
 		return coords;
 	}
 	
@@ -428,19 +445,21 @@ public class Maze {
 	
 	// Animate the motion to a target cell from the current cell in the memory class.
 	
-	private void traverse(Cell current, Cell target) {
+	private void traverse(Cell current, Cell target, Cell cellEnd) {
 		ArrayList<Vector> path = shortestPath(Memory.location, target);
 
-		System.out.println("--------------------------");
-		System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
-		System.out.println("Path: ");
-		for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
+		//System.out.println("--------------------------");
+		//System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
+		//System.out.println("Path: ");
+		//for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
 		
 		for (int i = 0; i < path.size(); i++) {
 			Memory.location.setColor(Color.WHITE);
+			if (Memory.location.isGreen()) Memory.location.setColor(Color.GREEN);
+			if (Memory.location == cellEnd) Memory.location.setColor(Color.RED);
 			Memory.location = path.get(i).getTarget(cells);
 			Memory.orientation = path.get(i).getDirection();
-			Memory.location.setColor(Color.CYAN);
+			Memory.location.setColor(Color.ORANGE);
 			sleep(150);
 			Main.g.refresh();
 		}
