@@ -6,8 +6,8 @@ import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3IRSensor;
 
 public class IR extends Sensor {
-	EV3IRSensor IR_SENSOR;
-	EV3MediumRegulatedMotor SERVO;
+	private EV3IRSensor IR_SENSOR;
+	private EV3MediumRegulatedMotor SERVO;
 	
 	public IR(Port port) {
 		IR_SENSOR = new EV3IRSensor(port);
@@ -22,6 +22,12 @@ public class IR extends Sensor {
 	
 	public void setAngle(int angle) {
 		SERVO.rotateTo(angle);
+	}
+	
+	public void look(Direction direction) {
+		if (direction == Direction.LEFT) setAngle(-120);
+		if (direction == Direction.FORWARD) setAngle(0);
+		if (direction == Direction.RIGHT) setAngle(120);
 	}
 
 }

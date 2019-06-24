@@ -5,6 +5,7 @@ public abstract class Result {
 	public static final Result POSSIBLE = new Possible();
 	public static final Result WALL = new Wall();
 	
+	@SuppressWarnings("unused")
 	private String state;
 
 	private Result(String state) {
@@ -13,19 +14,19 @@ public abstract class Result {
 	
 	private static final class Green extends Result {
 		private Green() {
-			super("green");
+			super("Green");
 		}
 	}
 	
 	private static final class Possible extends Result {
 		private Possible() {
-			super("possible");
+			super("Possible");
 		}
 	}
 	
 	private static final class Wall extends Result {
 		private Wall() {
-			super("wall");
+			super("Wall");
 		}
 	}
 	

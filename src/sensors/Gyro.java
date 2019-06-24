@@ -6,7 +6,7 @@ import main.Controller;
 import main.Data;
 
 public class Gyro extends Sensor {
-	EV3GyroSensor GYRO_SENSOR;
+	private EV3GyroSensor GYRO_SENSOR;
 
 	public Gyro(Port port) {
 		GYRO_SENSOR = new EV3GyroSensor(port);

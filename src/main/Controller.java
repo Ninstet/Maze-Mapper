@@ -10,8 +10,15 @@ import lejos.robotics.chassis.Wheel;
 import lejos.robotics.chassis.WheeledChassis;
 import lejos.robotics.navigation.MovePilot;
 import main.Data;
+import maze.Maze;
+import maze.Vector;
+import sensors.Direction;
+import sensors.Result;
+import sensors.Sensor;
 
 public class Controller {
+	
+	public static final Data DATA = new Data();
 	
 	public static final EV3LargeRegulatedMotor LEFT_MOTOR = new EV3LargeRegulatedMotor(MotorPort.A);
 	public static final EV3LargeRegulatedMotor RIGHT_MOTOR = new EV3LargeRegulatedMotor(MotorPort.D);
@@ -27,15 +34,33 @@ public class Controller {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public static boolean check(int direction) {
-		return false;
+	public static Result check(Maze maze, int absoluteDirection) {
+		Vector tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteDirection);
+		Direction direction = Direction.getDirection(absoluteDirection);
+		
+		if (Sensor.LEFT_COLOUR_SENSOR.isGreen() || Sensor.RIGHT_COLOUR_SENSOR.isGreen()) return Result.GREEN;
+		
+		if (tempVector.isOnMap(maze)) {
+			Sensor.IR_SENSOR.look(direction);
+			
+			if (Sensor.IR_SENSOR.getDistance() < 20) {
+				DATA.addLog(direction.toString() + ": Wall");
+				return Result.WALL;
+			} else {
+				DATA.addLog(direction.toString() + ": Possible");
+				return Result.POSSIBLE;
+			}
+			
+		} else {
+			return Result.WALL;
+		}
 	}
 	
-	public void rotateTo(int absoluteDirection) {
+	public static void rotateTo(int absoluteDirection) {
 		
 	}
 	
-	public void forward() {
+	public void nextCell() {
 		
 	}
 

@@ -4,7 +4,7 @@ import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 
 public class Colour extends Sensor {
-	EV3ColorSensor RGB_SENSOR;
+	private EV3ColorSensor RGB_SENSOR;
 	
 	public Colour(Port port) {
 		RGB_SENSOR = new EV3ColorSensor(port);

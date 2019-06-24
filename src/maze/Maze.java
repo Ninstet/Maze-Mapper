@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
+import main.Controller;
 import main.Main;
 import main.Memory;
+import sensors.Direction;
 import sensors.Result;
+import sensors.Sensor;
 import sensors.Simulate;
 
 public class Maze {
@@ -153,17 +156,8 @@ public class Maze {
 	 */
 	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
 		
-		Maze simulatedMaze = null;
-		if (simulate) {
-			simulatedMaze = new Maze(getWidth(), getHeight());
-			Main.g.addMaze("Solution", simulatedMaze);
-			simulatedMaze.randomize();
-			simulatedMaze.randomBreak(0.5);
-			simulatedMaze.addGreenCells(0.02);
-			ArrayList<Vector> path = simulatedMaze.shortestPath(cellStart, cellEnd);
-			simulatedMaze.displayVectors(path);
-			simulatedMaze.colorPath(path, Color.CYAN);
-		}
+		Simulate simulation = null;
+		if (simulate) simulation = new Simulate(this.width, this.height, cellStart, cellEnd, 0.5, 0.05);
 		
 		cellEnd.setColor(Color.RED);
 		
@@ -182,24 +176,23 @@ public class Maze {
 			closed.add(Memory.location);
 				
 			for (int i = 3; i <= 5; i++) {
-				int absoluteOrientation = (i + Memory.orientation) % 4;
+				int absoluteOrientation = Direction.toAbsoluteDirection(i);
 				tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteOrientation);
 				
-				if (simulate) {
-					if (Simulate.check(simulatedMaze, Memory.location, absoluteOrientation) == Result.POSSIBLE) {
-						Cell neighbour = tempVector.getTarget(cells);
-						
-						tempVector.breakWalls(getCells());
-						if (!open.contains(neighbour) && !closed.contains(neighbour)) {
-							open.push(neighbour);
-							neighbour.setColor(Color.BLUE);
-						}
-					} else if (Simulate.check(simulatedMaze, Memory.location, absoluteOrientation) == Result.GREEN) {
-						tempVector.getTarget(cells).setColor(Color.GREEN);
-						tempVector.breakWalls(cells);
+				if ((simulate ? simulation.check(absoluteOrientation) : Controller.check(this, absoluteOrientation)) == Result.POSSIBLE) {
+					Cell neighbour = tempVector.getTarget(cells);
+					
+					tempVector.breakWalls(cells);
+					if (!open.contains(neighbour) && !closed.contains(neighbour)) {
+						open.push(neighbour);
+						neighbour.setColor(Color.BLUE);
 					}
-				} else {
-					// Non-simulated method
+				} else if ((simulate ? simulation.check(absoluteOrientation) : Controller.check(this, absoluteOrientation)) == Result.GREEN) {
+					tempVector.get(cells).setGreen(true);
+					Memory.orientation = (Memory.orientation + 2) % 4;
+					tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), Memory.orientation);
+					traverse(tempVector.getTarget(cells), cellEnd);
+					break;
 				}
 				
 			}
@@ -333,6 +326,18 @@ public class Maze {
 	
 	
 	
+	/**
+	 * Set the color of all the cells in the path.
+	 * @param path - The path (list of vectors) you wish to set the color of cells for.
+	 * @param color - The color you wish to set the cells to.
+	 */
+	public void colorPath(ArrayList<Vector> path, Color color) {
+		for (int i = 0; i < path.size(); i++) path.get(i).get(getCells()).setColor(color);
+		path.get(path.size() - 1).getTarget(cells).setColor(color);
+	}
+	
+	
+	
 	
 	
 	
@@ -448,18 +453,6 @@ public class Maze {
 				cells[i][j].setColor(color);
 			}
 		}
-	}
-	
-	
-	
-	/**
-	 * Set the color of all the cells in the path.
-	 * @param path - The path (list of vectors) you wish to set the color of cells for.
-	 * @param color - The color you wish to set the cells to.
-	 */
-	private void colorPath(ArrayList<Vector> path, Color color) {
-		for (int i = 0; i < path.size(); i++) path.get(i).get(getCells()).setColor(color);
-		path.get(path.size() - 1).getTarget(cells).setColor(color);
 	}
 	
 	
