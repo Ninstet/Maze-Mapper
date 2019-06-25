@@ -18,7 +18,7 @@ public class Gui extends JFrame {
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(WIDTH + 25, HEIGHT + 70);
-		this.setResizable(false);
+		this.setResizable(true);
 		this.setLocationRelativeTo(null);
 		this.setTitle("Maze");
 		
@@ -41,7 +41,7 @@ public class Gui extends JFrame {
 	public void addMaze(String title, Maze maze) {
 		MazePanel panel = new MazePanel(maze);
 		tabbedPane.add(title, panel);
-		
+
 		this.add(tabbedPane);
 		this.refresh();
 	}

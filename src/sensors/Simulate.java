@@ -3,7 +3,6 @@ package sensors;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import main.Main;
 import main.Memory;
 import maze.Cell;
 import maze.Maze;
@@ -14,7 +13,7 @@ public class Simulate extends Sensor {
 	
 	public Simulate(int width, int height, Cell cellStart, Cell cellEnd, double breakProb, double greenProb) {
 		simulatedMaze = new Maze(width, height);
-		Main.g.addMaze("Solution", simulatedMaze);
+//		Server.g.addMaze("Solution", simulatedMaze);
 		
 		simulatedMaze.randomize();
 		simulatedMaze.randomBreak(breakProb);

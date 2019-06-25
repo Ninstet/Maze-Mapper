@@ -1,9 +1,12 @@
 package maze;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Cell implements Cloneable {
+public class Cell implements Cloneable, Serializable {
+	private static final long serialVersionUID = -4655500596468015178L;
+	
 	private boolean[] walls = {true, true , true , true}; // Assume all walls are up
 	private boolean green = false;
 	private boolean displayValues;

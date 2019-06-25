@@ -6,6 +6,9 @@ import lejos.hardware.lcd.LCD;
 
 public class Data {
 	
+	public static final int X_SIZE = 10;
+	public static final int Y_SIZE = 10;
+	
 	public static final double LINEAR_SPEED = 8.0;
 	public static final double ANGULAR_SPEED = 80.0;
 	public static final double ARC_RADIUS = 0.0001;

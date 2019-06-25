@@ -1,19 +1,21 @@
 package maze;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
 import main.Controller;
-import main.Main;
+import main.Server;
 import main.Memory;
 import sensors.Direction;
 import sensors.Result;
-import sensors.Sensor;
 import sensors.Simulate;
 
-public class Maze {
+public class Maze implements Serializable {
+	private static final long serialVersionUID = 4348019366607099374L;
+	
 	private Cell[][] cells;
 	private int width, height;
 	
@@ -200,8 +202,7 @@ public class Maze {
 		}
 		
 		colorPath(shortestPath(cellStart, cellEnd), Color.CYAN);
-		Main.g.refresh();
-		
+		Server.upload();
 	}
 	
 	
@@ -310,7 +311,7 @@ public class Maze {
 				cells[i][j].displayValues(true);
 			}
 		}
-		Main.g.refresh();
+		Server.upload();
 	}
 	
 	
@@ -321,7 +322,7 @@ public class Maze {
 	 */
 	public void displayVectors(ArrayList<Vector> path) {
 		for (int i = 0; i < path.size(); i++) path.get(i).get(cells).setDirection(path.get(i).getDirection());
-		Main.g.refresh();
+		Server.upload();
 	}
 	
 	
@@ -481,10 +482,10 @@ public class Maze {
 	private void traverse(Cell target, Cell cellEnd) {
 		ArrayList<Vector> path = shortestPath(Memory.location, target);
 
-		System.out.println("--------------------------");
-		System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
-		System.out.println("Path: ");
-		for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
+//		System.out.println("--------------------------");
+//		System.out.println("Location: " + Memory.location.getCoords() + "\nTarget:   " + target.getCoords());
+//		System.out.println("Path: ");
+//		for (int i = 0; i < path.size(); i++) System.out.println("    (" + path.get(i).getX() + ", " + path.get(i).getY() + ") --> " + path.get(i).getTarget(cells).getCoords());
 		
 		for (int i = 0; i < path.size(); i++) {
 			Memory.location.setColor(Color.WHITE);
@@ -494,7 +495,7 @@ public class Maze {
 			Memory.orientation = path.get(i).getDirection();
 			Memory.location.setColor(Color.ORANGE);
 			sleep(200);
-			Main.g.refresh();
+			Server.upload();
 		}
 	}
 	

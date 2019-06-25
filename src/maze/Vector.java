@@ -1,8 +1,10 @@
 package maze;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Vector {
+public class Vector implements Serializable {
+	private static final long serialVersionUID = 9092112670969118835L;
+	
 	private int x1, y1;
 	private int x2, y2;
 	private int direction;
