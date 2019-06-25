@@ -45,7 +45,7 @@ public class MazePanel extends JPanel {
 				int[] bottomLeft = new int[] {i * cell_size, (j + 1) * cell_size};
 				int[] bottomRight = new int[] {(i + 1) * cell_size, (j + 1) * cell_size};
 				
-				if (cell.checkWalls() && cell.getColor() == Color.WHITE) g.fillRect(topLeft[0], topLeft[1], cell_size, cell_size);
+				if (cell.checkWalls() && cell.getColor().equals(Color.WHITE)) g.fillRect(topLeft[0], topLeft[1], cell_size, cell_size);
 				
 				if (cell.willDisplayValues()) {
 					g.drawString(cell.getCoords(), topLeft[0] + (cell_size / 2) - (cell_size / 5), topLeft[1] + 15);

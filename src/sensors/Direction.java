@@ -50,7 +50,7 @@ public abstract class Direction {
 	}
 	
 	public static Direction getDirection(int absoluteDirection) {
-		int relativeDirection = (absoluteDirection - Memory.orientation) % 4;
+		int relativeDirection = toRelativeDirection(absoluteDirection);
 		if (relativeDirection == 0) {
 			return Direction.FORWARD;
 		} else if (relativeDirection == 1) {
@@ -63,11 +63,11 @@ public abstract class Direction {
 	}
 	
 	public static int toRelativeDirection(int absoluteDirection) {
-		return (absoluteDirection - Memory.orientation) % 4;
+		return (absoluteDirection - Memory.orientation + 4) % 4;
 	}
 	
 	public static int toAbsoluteDirection(int relativeDirection) {
-		return (relativeDirection + Memory.orientation) % 4;
+		return (relativeDirection + Memory.orientation + 4) % 4;
 	}
 
 }

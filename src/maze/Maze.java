@@ -17,12 +17,15 @@ public class Maze implements Serializable {
 	private static final long serialVersionUID = 4348019366607099374L;
 	
 	private Cell[][] cells;
+	private String title;
 	private int width, height;
 	
 	Vector tempVector;
 
-	public Maze(int width, int height) {
+	public Maze(String title, int width, int height) {
 		cells = new Cell[width][height];
+		
+		this.title = title;
 		
 		this.width = width;
 		this.height = height;
@@ -36,6 +39,16 @@ public class Maze implements Serializable {
 	// ------------------------
 	// ---- GETTER METHODS ----
 	// ------------------------
+	
+	
+	
+	/**
+	 * Get the width of the maze in units of cells.
+	 * @return Width of the maze.
+	 */
+	public String getTitle() {
+		return title;
+	}
 	
 	
 	
@@ -159,7 +172,7 @@ public class Maze implements Serializable {
 	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
 		
 		Simulate simulation = null;
-		if (simulate) simulation = new Simulate(this.width, this.height, cellStart, cellEnd, 0.5, 0.05);
+		if (simulate) simulation = new Simulate(this.width, this.height, cellStart, cellEnd, 0.7, 0.05);
 		
 		cellEnd.setColor(Color.RED);
 		
@@ -202,7 +215,7 @@ public class Maze implements Serializable {
 		}
 		
 		colorPath(shortestPath(cellStart, cellEnd), Color.CYAN);
-		Server.upload();
+		Server.uploadMaze(this);
 	}
 	
 	
@@ -311,7 +324,7 @@ public class Maze implements Serializable {
 				cells[i][j].displayValues(true);
 			}
 		}
-		Server.upload();
+		Server.uploadMaze(this);
 	}
 	
 	
@@ -322,7 +335,7 @@ public class Maze implements Serializable {
 	 */
 	public void displayVectors(ArrayList<Vector> path) {
 		for (int i = 0; i < path.size(); i++) path.get(i).get(cells).setDirection(path.get(i).getDirection());
-		Server.upload();
+		Server.uploadMaze(this);
 	}
 	
 	
@@ -401,7 +414,7 @@ public class Maze implements Serializable {
 	 * @return True if the path between 2 cells is the shortest. False if there could be a shorter path, and hence more data is required to be sure.
 	 */
 	private boolean isSmallestPossiblePath(Cell cellStart, Cell cellEnd, ArrayList<Cell> closed) {
-		Maze tempMaze = new Maze(this.width, this.height);
+		Maze tempMaze = new Maze("Simulation", this.width, this.height);
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
 				tempMaze.getCells()[i][j] = this.getCells()[i][j].clone();
@@ -495,7 +508,7 @@ public class Maze implements Serializable {
 			Memory.orientation = path.get(i).getDirection();
 			Memory.location.setColor(Color.ORANGE);
 			sleep(200);
-			Server.upload();
+			Server.uploadMaze(this);
 		}
 	}
 	

@@ -25,9 +25,9 @@ public class IR extends Sensor {
 	}
 	
 	public void look(Direction direction) {
-		if (direction == Direction.LEFT) setAngle(-120);
+		if (direction == Direction.LEFT) setAngle(-130);
 		if (direction == Direction.FORWARD) setAngle(0);
-		if (direction == Direction.RIGHT) setAngle(120);
+		if (direction == Direction.RIGHT) setAngle(135);
 	}
 
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import main.Memory;
+import main.Server;
 import maze.Cell;
 import maze.Maze;
 import maze.Vector;
@@ -12,8 +13,7 @@ public class Simulate extends Sensor {
 	private Maze simulatedMaze;
 	
 	public Simulate(int width, int height, Cell cellStart, Cell cellEnd, double breakProb, double greenProb) {
-		simulatedMaze = new Maze(width, height);
-//		Server.g.addMaze("Solution", simulatedMaze);
+		simulatedMaze = new Maze("Simulation", width, height);
 		
 		simulatedMaze.randomize();
 		simulatedMaze.randomBreak(breakProb);
@@ -22,6 +22,8 @@ public class Simulate extends Sensor {
 		ArrayList<Vector> path = simulatedMaze.shortestPath(cellStart, cellEnd);
 		simulatedMaze.displayVectors(path);
 		simulatedMaze.colorPath(path, Color.CYAN);
+
+		Server.uploadMaze(simulatedMaze);
 	}
 	
 	public Result check(int absoluteDirection) {

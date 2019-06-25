@@ -18,7 +18,7 @@ public class Gui extends JFrame {
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(WIDTH + 25, HEIGHT + 70);
-		this.setResizable(true);
+		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setTitle("Maze");
 		
@@ -34,16 +34,27 @@ public class Gui extends JFrame {
 		this.setVisible(true);
 	}
 	
-	public void refresh() {
+	public void addMaze(String title, Maze maze) {
+		MazePanel panel = new MazePanel(maze);
+
+		int selected = tabbedPane.getSelectedIndex();
+		removeTabWithTitle(title);
+		tabbedPane.add(panel, title);
+		tabbedPane.setSelectedIndex(selected);
+		
+		this.add(tabbedPane);
+		this.revalidate();
 		this.repaint();
 	}
 	
-	public void addMaze(String title, Maze maze) {
-		MazePanel panel = new MazePanel(maze);
-		tabbedPane.add(title, panel);
-
-		this.add(tabbedPane);
-		this.refresh();
+	private void removeTabWithTitle(String title) {
+		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+			String tabTitle = tabbedPane.getTitleAt(i);
+			if (tabTitle.equals(title)) {
+				tabbedPane.remove(i); 
+				break;
+			}
+		}
 	}
 	
 }

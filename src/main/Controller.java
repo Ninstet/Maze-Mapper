@@ -2,6 +2,8 @@ package main;
 
 import lejos.hardware.BrickFinder;
 import lejos.hardware.Keys;
+import lejos.hardware.Sound;
+import lejos.hardware.Sounds;
 import lejos.hardware.ev3.EV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
@@ -56,12 +58,55 @@ public class Controller {
 		}
 	}
 	
+	
 	public static void rotateTo(int absoluteDirection) {
 		
 	}
 	
 	public void nextCell() {
 		
+	}
+	
+	public static void LED(String c) {
+		if (c == "RED") { lejos.hardware.Button.LEDPattern(2); }
+		if (c == "AMBER") { lejos.hardware.Button.LEDPattern(3); Sound.playNote(Sounds.FLUTE, 3000, 50); }
+		if (c == "GREEN") { lejos.hardware.Button.LEDPattern(1); }
+	}
+	
+	public static void init() {
+		DATA.addLog("Initializing...");
+		LED("RED");
+		
+		Sensor.LEFT_COLOUR_SENSOR.getRGB();
+		Sensor.RIGHT_COLOUR_SENSOR.getRGB();
+		
+		Sensor.GYRO.getAngle();
+		
+		Sensor.IR_SENSOR.getDistance();
+		Sensor.IR_SENSOR.look(Direction.LEFT);
+		Sensor.IR_SENSOR.look(Direction.RIGHT);
+		Sensor.IR_SENSOR.look(Direction.FORWARD);
+		
+		PILOT.rotate(10.0);
+		PILOT.rotate(-10.0);
+		PILOT.setLinearSpeed(Data.LINEAR_SPEED);
+		PILOT.setAngularSpeed(Data.ANGULAR_SPEED);
+		PILOT.setLinearAcceleration(10.0);
+		PILOT.setAngularAcceleration(1000.0);
+		
+		DATA.addLog("Done!");
+		LED("AMBER");
+		
+		Sound.playNote(Sounds.FLUTE, 1500, 200);
+		try {
+			Thread.sleep(100);
+		} catch (Exception e) {}
+		Sound.playNote(Sounds.FLUTE, 1500, 200);
+
+//		DATA.addLog("Press any key...");
+//		KEYS.waitForAnyPress();
+//		DATA.clearLogs();
+		LED("GREEN");
 	}
 
 }

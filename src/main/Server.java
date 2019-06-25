@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import maze.Cell;
 import maze.Maze;
+import sensors.Direction;
+import sensors.Sensor;
 
 public class Server {
 	private static ServerSocket server;
@@ -19,13 +21,17 @@ public class Server {
 		
 		client = connectClient();
 		
-		exploredMaze = new Maze(Data.X_SIZE, Data.Y_SIZE);
+		Controller.init();
+		
+		exploredMaze = new Maze("Explorer", Data.X_SIZE, Data.Y_SIZE);
 		
 		Cell bottomLeft = exploredMaze.getCells()[0][Data.Y_SIZE - 1];
 		Cell topRight = exploredMaze.getCells()[Maze.rand(0, Data.X_SIZE - 1)][Maze.rand(0, Data.Y_SIZE - 1)];
 		
 		exploredMaze.explore(bottomLeft, topRight, false);
 		exploredMaze.displayVectors(exploredMaze.shortestPath(bottomLeft, topRight));
+		
+		Sensor.IR_SENSOR.look(Direction.FORWARD);
 	}
 	
 	private static Socket connectClient() throws IOException  {
@@ -40,12 +46,14 @@ public class Server {
 		return client;
 	}
 	
-	public static void upload() {
+	public static void uploadMaze(Maze maze) {
 		try {
 			output.reset();
-			output.writeObject(exploredMaze);
+			output.writeObject(maze);
 			output.flush();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			System.exit(0);
+		}
 	}
 	
 }
