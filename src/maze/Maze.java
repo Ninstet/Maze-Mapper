@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
+import lejos.hardware.Keys;
 import main.Controller;
+import main.Data;
 import main.Server;
 import main.Memory;
 import sensors.Direction;
 import sensors.Result;
+import sensors.Sensor;
 import sensors.Simulate;
 
 public class Maze implements Serializable {
@@ -169,12 +172,14 @@ public class Maze implements Serializable {
 	 * @param cellEnd - The goal cell you wish to optimise a shortest path to.
 	 * @param simulate - True to simulate sensor inputs and maze, false to use robot sensors in real maze.
 	 */
-	public void explore(Cell cellStart, Cell cellEnd, boolean simulate) {
-		
+	public void explore(Cell cellStart, boolean simulate) {
+		Cell cellEnd = null;
 		Simulate simulation = null;
-		if (simulate) simulation = new Simulate(this.width, this.height, cellStart, cellEnd, 0.7, 0.05);
 		
-		cellEnd.setColor(Color.RED);
+		if (simulate) {
+			cellEnd = this.getCells()[rand(0, getWidth() - 1)][rand(0, getHeight() - 1)];
+			simulation = new Simulate(getWidth(), getHeight(), cellStart, cellEnd, 0.7, 0.05);
+		}
 		
 		Stack<Cell> open = new Stack<Cell>();
 		ArrayList<Cell> closed = new ArrayList<Cell>();
@@ -184,12 +189,18 @@ public class Maze implements Serializable {
 		Memory.location = cellStart;
 		Memory.orientation = 0;
 		
-		while (!isSmallestPossiblePath(cellStart, cellEnd, closed)) {
+		while (!isSmallestPossiblePath(cellStart, cellEnd, closed) && Controller.KEYS.getButtons() != Keys.ID_ESCAPE) {
 			
 			Cell target = open.pop();
 			traverse(target, cellEnd);
 			closed.add(Memory.location);
-				
+			
+			if (Memory.getColor() == Color.RED) {
+				Controller.DATA.addLog("End found!"); 
+				cellEnd = Memory.location;
+			}
+			if (cellEnd != null) cellEnd.setColor(Color.RED);
+			
 			for (int i = 3; i <= 5; i++) {
 				int absoluteOrientation = Direction.toAbsoluteDirection(i);
 				tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteOrientation);
@@ -215,6 +226,7 @@ public class Maze implements Serializable {
 		}
 		
 		colorPath(shortestPath(cellStart, cellEnd), Color.CYAN);
+		displayVectors(shortestPath(cellStart, cellEnd));
 		Server.uploadMaze(this);
 	}
 	
@@ -414,6 +426,7 @@ public class Maze implements Serializable {
 	 * @return True if the path between 2 cells is the shortest. False if there could be a shorter path, and hence more data is required to be sure.
 	 */
 	private boolean isSmallestPossiblePath(Cell cellStart, Cell cellEnd, ArrayList<Cell> closed) {
+		if (cellEnd == null) return false;
 		Maze tempMaze = new Maze("Simulation", this.width, this.height);
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
@@ -504,9 +517,17 @@ public class Maze implements Serializable {
 			Memory.location.setColor(Color.WHITE);
 			if (Memory.location.isGreen()) Memory.location.setColor(Color.GREEN);
 			if (Memory.location == cellEnd) Memory.location.setColor(Color.RED);
+			
+			Sensor.IR_SENSOR.look(Direction.FORWARD);
+			Controller.rotateTo(path.get(i).getDirection());
+			Controller.nextCell();
+			
+			Memory.location.setDirection(-1);
 			Memory.location = path.get(i).getTarget(cells);
 			Memory.orientation = path.get(i).getDirection();
+			Memory.location.setDirection(Memory.orientation);
 			Memory.location.setColor(Color.ORANGE);
+			
 			sleep(200);
 			Server.uploadMaze(this);
 		}

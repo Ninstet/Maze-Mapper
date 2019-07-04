@@ -58,13 +58,17 @@ public class Controller {
 		}
 	}
 	
-	
 	public static void rotateTo(int absoluteDirection) {
-		
+		DATA.addLog("Looking " + Direction.getDirection(absoluteDirection).toString().toLowerCase() + ".");
+		int relativeDirection = Direction.toRelativeDirection(absoluteDirection);
+		if (relativeDirection == 1) PILOT.rotate(90);
+		if (relativeDirection == 2) PILOT.rotate(180);
+		if (relativeDirection == 3) PILOT.rotate(-90);
 	}
 	
-	public void nextCell() {
-		
+	public static void nextCell() {
+		DATA.addLog("Next cell...");
+		PILOT.travel(30);
 	}
 	
 	public static void LED(String c) {

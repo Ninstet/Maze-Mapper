@@ -25,11 +25,9 @@ public class Server {
 		
 		exploredMaze = new Maze("Explorer", Data.X_SIZE, Data.Y_SIZE);
 		
-		Cell bottomLeft = exploredMaze.getCells()[0][Data.Y_SIZE - 1];
-		Cell topRight = exploredMaze.getCells()[Maze.rand(0, Data.X_SIZE - 1)][Maze.rand(0, Data.Y_SIZE - 1)];
+		Cell cellStart = exploredMaze.getCells()[0][Data.Y_SIZE - 1];
 		
-		exploredMaze.explore(bottomLeft, topRight, false);
-		exploredMaze.displayVectors(exploredMaze.shortestPath(bottomLeft, topRight));
+		exploredMaze.explore(cellStart, true);
 		
 		Sensor.IR_SENSOR.look(Direction.FORWARD);
 	}
