@@ -107,29 +107,53 @@ public class Controller {
 	
 	public static void nextCell() {
 		DATA.addLog("Next cell...");
-		
+		PILOT.setAngularSpeed(30);
 		PILOT.travel(Data.CELL_SEPERATION, true);
+		
+		double distanceTravelled = 0.0;
 		
 		IR_SENSOR.look(Direction.LEFT);
 		double leftDistance = IR_SENSOR.getDistance() + Data.IR_OFFSET;
-		IR_SENSOR.look(Direction.RIGHT);
-		double rightDistance = IR_SENSOR.getDistance() + Data.IR_OFFSET;
-		IR_SENSOR.look(Direction.FORWARD);
+		distanceTravelled = PILOT.getMovement().getDistanceTraveled();
 		
-		double distanceTravelled = PILOT.getMovement().getDistanceTraveled();
-		
-		if (leftDistance < Data.CELL_SIZE && rightDistance < Data.CELL_SIZE) {
-			DATA.addLog("* Two walls *");
-			PILOT.rotate(2 * (int)Math.asin(Data.CELL_SIZE / (leftDistance + rightDistance)));
-		} else if (leftDistance < Data.CELL_SIZE) {
-			DATA.addLog("* Left wall *");
-			if (leftDistance < Data.CELL_SIZE / 2) PILOT.rotate(((Data.CELL_SIZE / 2) - leftDistance) / (Data.CELL_SIZE / 2) * 70);
-		} else if (rightDistance < Data.CELL_SIZE) {
-			DATA.addLog("* Right wall *");
-			if (rightDistance < Data.CELL_SIZE / 2) PILOT.rotate(-(((Data.CELL_SIZE / 2) - rightDistance) / (Data.CELL_SIZE / 2) * 70));
+		if ((Data.CELL_SIZE / 2) - leftDistance > Data.IR_OFFSET / 2) {
+			PILOT.arcForward(Data.CELL_SEPERATION - distanceTravelled);
+			while (PILOT.getMovement().getDistanceTraveled() < Data.CELL_SEPERATION - distanceTravelled - 10) {}
+			PILOT.stop();
+			PILOT.arcForward(-Data.ARC_RADIUS);
+			while (IR_SENSOR.getDistance() > Data.CELL_SIZE / 2) {}
+		} else {
+			IR_SENSOR.look(Direction.RIGHT);
+			double rightDistance = IR_SENSOR.getDistance() + Data.IR_OFFSET;
+			distanceTravelled = PILOT.getMovement().getDistanceTraveled();
+			
+			if ((Data.CELL_SIZE / 2) - rightDistance > Data.IR_OFFSET / 2) {
+				PILOT.arcForward(-(Data.CELL_SEPERATION - distanceTravelled));
+				while (PILOT.getMovement().getDistanceTraveled() < Data.CELL_SEPERATION - distanceTravelled + 1) {}
+				PILOT.stop();
+				PILOT.arcForward(Data.ARC_RADIUS);
+				while (IR_SENSOR.getDistance() > Data.CELL_SIZE / 2) {}
+			} else {
+				while (PILOT.isMoving()) {}
+			}
 		}
 		
-		PILOT.travel(Data.CELL_SEPERATION - distanceTravelled);
+		PILOT.stop();
+		IR_SENSOR.look(Direction.FORWARD);
+		PILOT.setAngularSpeed(Data.ANGULAR_SPEED);
+		
+//		if (leftDistance < Data.CELL_SIZE && rightDistance < Data.CELL_SIZE) {
+//			DATA.addLog("* Two walls *");
+//			PILOT.rotate(2 * (int)Math.asin(Data.CELL_SIZE / (leftDistance + rightDistance)));
+//		} else if (leftDistance < Data.CELL_SIZE) {
+//			DATA.addLog("* Left wall *");
+//			if (leftDistance < Data.CELL_SIZE / 2) PILOT.rotate(((Data.CELL_SIZE / 2) - leftDistance) / (Data.CELL_SIZE / 2) * 70);
+//		} else if (rightDistance < Data.CELL_SIZE) {
+//			DATA.addLog("* Right wall *");
+//			if (rightDistance < Data.CELL_SIZE / 2) PILOT.rotate(-(((Data.CELL_SIZE / 2) - rightDistance) / (Data.CELL_SIZE / 2) * 70));
+//		}
+		
+//		PILOT.travel(Data.CELL_SEPERATION - distanceTravelled);
 	}
 	
 	public static void LED(String c) {

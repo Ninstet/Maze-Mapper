@@ -6,8 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import lejos.hardware.lcd.LCD;
+import main.Controller;
 import sensors.Direction;
-import sensors.Sensor;
 
 public class Server {
 	private static ServerSocket server;
@@ -31,7 +31,7 @@ public class Server {
 		
 		output.writeObject("Helllooooo");
 		
-		Sensor.IR_SENSOR.look(Direction.LEFT);
+		Controller.IR_SENSOR.look(Direction.LEFT);
 		
 		try {
 			Thread.sleep(3000);
