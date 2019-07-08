@@ -518,8 +518,8 @@ public class Maze implements Serializable {
 			if (Memory.location.isGreen()) Memory.location.setColor(Color.GREEN);
 			if (Memory.location == cellEnd) Memory.location.setColor(Color.RED);
 			
-			Sensor.IR_SENSOR.look(Direction.FORWARD);
-			Controller.rotateTo(path.get(i).getDirection());
+			Controller.IR_SENSOR.look(Direction.FORWARD);
+			Controller.turn(path.get(i).getDirection());
 			Controller.nextCell();
 			
 			Memory.location.setDirection(-1);
@@ -528,7 +528,7 @@ public class Maze implements Serializable {
 			Memory.location.setDirection(Memory.orientation);
 			Memory.location.setColor(Color.ORANGE);
 			
-			sleep(200);
+//			sleep(200);
 			Server.uploadMaze(this);
 		}
 	}

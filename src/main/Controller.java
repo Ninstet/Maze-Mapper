@@ -14,9 +14,11 @@ import lejos.robotics.navigation.MovePilot;
 import main.Data;
 import maze.Maze;
 import maze.Vector;
+import sensors.Colour;
 import sensors.Direction;
+import sensors.Gyro;
+import sensors.IR;
 import sensors.Result;
-import sensors.Sensor;
 
 public class Controller {
 	
@@ -31,6 +33,11 @@ public class Controller {
 	public static final MovePilot PILOT = new MovePilot(CHASSIS);
 	public static final EV3 EV3_BRICK = (EV3) BrickFinder.getLocal();
 	public static final Keys KEYS = EV3_BRICK.getKeys();
+	
+	public static final Colour LEFT_COLOUR_SENSOR = new Colour(EV3_BRICK.getPort("S1"));
+	public static final Colour RIGHT_COLOUR_SENSOR = new Colour(EV3_BRICK.getPort("S2"));
+	public static final Gyro GYRO = new Gyro(EV3_BRICK.getPort("S3"));
+	public static final IR IR_SENSOR = new IR(EV3_BRICK.getPort("S4"));
 
 	public Controller() {
 		// TODO Auto-generated constructor stub
@@ -40,12 +47,12 @@ public class Controller {
 		Vector tempVector = new Vector(Memory.location.getX(), Memory.location.getY(), absoluteDirection);
 		Direction direction = Direction.getDirection(absoluteDirection);
 		
-		if (Sensor.LEFT_COLOUR_SENSOR.isGreen() || Sensor.RIGHT_COLOUR_SENSOR.isGreen()) return Result.GREEN;
+		if (LEFT_COLOUR_SENSOR.isGreen() || RIGHT_COLOUR_SENSOR.isGreen()) return Result.GREEN;
 		
 		if (tempVector.isOnMap(maze)) {
-			Sensor.IR_SENSOR.look(direction);
+			IR_SENSOR.look(direction);
 			
-			if (Sensor.IR_SENSOR.getDistance() < 20) {
+			if (IR_SENSOR.getDistance() < 20) {
 				DATA.addLog(direction.toString() + ": Wall");
 				return Result.WALL;
 			} else {
@@ -58,17 +65,71 @@ public class Controller {
 		}
 	}
 	
-	public static void rotateTo(int absoluteDirection) {
+	public static void rotate(int relativeAngle) {
+		double startAngle = GYRO.getAngle();
+		
+		if (relativeAngle > 0) {
+			PILOT.arcForward(Data.ARC_RADIUS);
+			while (GYRO.getAngle() > startAngle - relativeAngle) {}
+			PILOT.stop();
+			
+			PILOT.setAngularSpeed(30);
+			
+			PILOT.arcForward(-Data.ARC_RADIUS);
+			while (GYRO.getAngle() < startAngle - relativeAngle) {}
+			PILOT.stop();
+			
+//			PILOT.rotate(GYRO.getAngle() + relativeAngle - startAngle);
+		} else if (relativeAngle < 0) {
+			PILOT.arcForward(-Data.ARC_RADIUS);
+			while (GYRO.getAngle() < startAngle - relativeAngle) {}
+			PILOT.stop();
+			
+			PILOT.setAngularSpeed(30);
+			
+			PILOT.arcForward(Data.ARC_RADIUS);
+			while (GYRO.getAngle() > startAngle - relativeAngle) {}
+			PILOT.stop();
+			
+//			PILOT.rotate(GYRO.getAngle() - relativeAngle + startAngle);
+		}
+		
+		PILOT.setAngularSpeed(Data.ANGULAR_SPEED);
+	}
+	
+	public static void turn(int absoluteDirection) {
 		DATA.addLog("Looking " + Direction.getDirection(absoluteDirection).toString().toLowerCase() + ".");
 		int relativeDirection = Direction.toRelativeDirection(absoluteDirection);
-		if (relativeDirection == 1) PILOT.rotate(90);
-		if (relativeDirection == 2) PILOT.rotate(180);
-		if (relativeDirection == 3) PILOT.rotate(-90);
+		if (relativeDirection == 1) rotate(90);
+		if (relativeDirection == 2) rotate(180);
+		if (relativeDirection == 3) rotate(-90);
 	}
 	
 	public static void nextCell() {
 		DATA.addLog("Next cell...");
-		PILOT.travel(30);
+		
+		PILOT.travel(Data.CELL_SEPERATION, true);
+		
+		IR_SENSOR.look(Direction.LEFT);
+		double leftDistance = IR_SENSOR.getDistance() + Data.IR_OFFSET;
+		IR_SENSOR.look(Direction.RIGHT);
+		double rightDistance = IR_SENSOR.getDistance() + Data.IR_OFFSET;
+		IR_SENSOR.look(Direction.FORWARD);
+		
+		double distanceTravelled = PILOT.getMovement().getDistanceTraveled();
+		
+		if (leftDistance < Data.CELL_SIZE && rightDistance < Data.CELL_SIZE) {
+			DATA.addLog("* Two walls *");
+			PILOT.rotate(2 * (int)Math.asin(Data.CELL_SIZE / (leftDistance + rightDistance)));
+		} else if (leftDistance < Data.CELL_SIZE) {
+			DATA.addLog("* Left wall *");
+			if (leftDistance < Data.CELL_SIZE / 2) PILOT.rotate(((Data.CELL_SIZE / 2) - leftDistance) / (Data.CELL_SIZE / 2) * 70);
+		} else if (rightDistance < Data.CELL_SIZE) {
+			DATA.addLog("* Right wall *");
+			if (rightDistance < Data.CELL_SIZE / 2) PILOT.rotate(-(((Data.CELL_SIZE / 2) - rightDistance) / (Data.CELL_SIZE / 2) * 70));
+		}
+		
+		PILOT.travel(Data.CELL_SEPERATION - distanceTravelled);
 	}
 	
 	public static void LED(String c) {
@@ -81,21 +142,21 @@ public class Controller {
 		DATA.addLog("Initializing...");
 		LED("RED");
 		
-		Sensor.LEFT_COLOUR_SENSOR.getRGB();
-		Sensor.RIGHT_COLOUR_SENSOR.getRGB();
+		LEFT_COLOUR_SENSOR.getRGB();
+		RIGHT_COLOUR_SENSOR.getRGB();
 		
-		Sensor.GYRO.getAngle();
+		GYRO.getAngle();
 		
-		Sensor.IR_SENSOR.getDistance();
-		Sensor.IR_SENSOR.look(Direction.LEFT);
-		Sensor.IR_SENSOR.look(Direction.RIGHT);
-		Sensor.IR_SENSOR.look(Direction.FORWARD);
+		IR_SENSOR.getDistance();
+		IR_SENSOR.look(Direction.LEFT);
+		IR_SENSOR.look(Direction.RIGHT);
+		IR_SENSOR.look(Direction.FORWARD);
 		
 		PILOT.rotate(10.0);
 		PILOT.rotate(-10.0);
 		PILOT.setLinearSpeed(Data.LINEAR_SPEED);
 		PILOT.setAngularSpeed(Data.ANGULAR_SPEED);
-		PILOT.setLinearAcceleration(10.0);
+		PILOT.setLinearAcceleration(60.0);
 		PILOT.setAngularAcceleration(1000.0);
 		
 		DATA.addLog("Done!");

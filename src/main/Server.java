@@ -7,7 +7,6 @@ import java.net.Socket;
 import maze.Cell;
 import maze.Maze;
 import sensors.Direction;
-import sensors.Sensor;
 
 public class Server {
 	private static ServerSocket server;
@@ -27,9 +26,9 @@ public class Server {
 		
 		Cell cellStart = exploredMaze.getCells()[0][Data.Y_SIZE - 1];
 		
-		exploredMaze.explore(cellStart, true);
+		exploredMaze.explore(cellStart, false);
 		
-		Sensor.IR_SENSOR.look(Direction.FORWARD);
+		Controller.IR_SENSOR.look(Direction.FORWARD);
 	}
 	
 	private static Socket connectClient() throws IOException  {
